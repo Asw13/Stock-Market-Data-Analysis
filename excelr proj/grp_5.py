@@ -7,18 +7,23 @@ from sklearn.preprocessing import MinMaxScaler
 import pickle
 import base64
 from sklearn.preprocessing import MinMaxScaler
+import tensorflow as tf
+#from tensorflow.python.keras.layers.recurrent import LSTM,Dense
+import keras
+from keras import layers
+import keras
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import load_model
 from pickle import load
 from pickle import dump
 import warnings
 warnings.filterwarnings('ignore')
+from nselib import capital_market
 import nsepy as nse
+
 from datetime import date
 import datetime
-current_time=datetime.datetime.now()
-
 
 # Background
 # Set page config
@@ -77,11 +82,22 @@ st.markdown('<div class="grey-box blink"><h1>GROUP 5 Project</h1></div>', unsafe
 
 # load the pre-trained LSTM model
 loaded_model=pickle.load(open(r'bp_trained_model.sav','rb'))
+current_time=datetime.datetime.now()
+formatted_time = current_time.strftime("%d-%m-%Y")
+formatted_time
 
-bp1=nse.get_history(symbol='BERGEPAINT',start=date(2010,1,1),end=date(current_time.year,current_time.month,current_time.day))
+bp1= capital_market.price_volume_and_deliverable_position_data(symbol='BERGEPAINT', from_date='01-01-2010', to_date=formatted_time)
 
+#bp1=nse.get_history(symbol='BERGEPAINT',start=date(2010,1,1),end=date(current_time.year,current_time.month,current_time.day))
 
-bp=bp1[['Open','High','Low','Close']]
+#we are considering columns 
+bp=bp1[['OpenPrice','HighPrice','LowPrice','ClosePrice']]
+column_mapping = {'OpenPrice': 'Open', 'HighPrice': 'High','LowPrice':'Low','ClosePrice':'Close'}
+# cahnge bp column name to Column mapping
+
+bp.rename(columns=column_mapping,inplace=True)
+
+#bp=bp1[['Open','High','Low','Close']]
 
 #describe data
 
