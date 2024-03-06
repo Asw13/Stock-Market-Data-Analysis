@@ -21,6 +21,8 @@ import warnings
 warnings.filterwarnings('ignore')
 from nselib import capital_market
 import nsepy as nse
+import matplotlib.pyplot as plt
+import seaborn as sns; sns.set()
 
 from datetime import date
 import datetime
@@ -89,7 +91,10 @@ formatted_time
 bp1= capital_market.price_volume_and_deliverable_position_data(symbol='BERGEPAINT', from_date='01-01-2010', to_date=formatted_time)
 
 #bp1=nse.get_history(symbol='BERGEPAINT',start=date(2010,1,1),end=date(current_time.year,current_time.month,current_time.day))
-
+bp2=bp1[['Date','ClosePrice']]
+column_mapping = {'Date':'Date','ClosePrice':'Close'}
+bp2.rename(columns=column_mapping,inplace=True)
+bp2['Date']= pd.to_datetime(bp2['Date'])
 #we are considering columns 
 bp=bp1[['OpenPrice','HighPrice','LowPrice','ClosePrice']]
 column_mapping = {'OpenPrice': 'Open', 'HighPrice': 'High','LowPrice':'Low','ClosePrice':'Close'}
@@ -102,29 +107,41 @@ bp.rename(columns=column_mapping,inplace=True)
 #describe data
 
 st.markdown("<h2 style='color: red;'>Data from 2010 till today(describe data)</h2>", unsafe_allow_html=True)
-st.write(bp.describe())
+st.write(bp2.head())
+st.write(bp2.describe())
 
 #visualization
+
 st.markdown("<h2 style='color: red;'>Closing Price VS Time Chart</h2>", unsafe_allow_html=True)
-fig = plt.figure(figsize = (12,6))
-plt.plot(bp.Close)
+fig=plt.figure(figsize=(14,5))
+sns.set_style("ticks")
+sns.lineplot(data=bp2,x="Date",y='Close',color='firebrick')
+sns.despine()
+plt.title("The Stock Price of BERGEPAINT ",size='x-large',color='blue')
 st.pyplot(fig)
 
-st.markdown("<h2 style='color: red;'>Closing Price VS Time Chart with 100MA</h2>", unsafe_allow_html=True)
 ma100 =bp.Close.rolling(100).mean()
-fig = plt.figure(figsize = (12,6))
-plt.plot(ma100)
-plt.plot(bp.Close)
+st.markdown("<h2 style='color: red;'>Closing Price VS Time Chart with 100MA</h2>", unsafe_allow_html=True)
+fig=plt.figure(figsize=(14,5))
+sns.set_style("ticks")
+sns.lineplot(data=bp2,x="Date",y=bp.Close.rolling(100).mean(),color='blue')
+sns.lineplot(data=bp2,x="Date",y='Close',color='firebrick')
+sns.despine()
+plt.title("The Stock Price of BERGEPAINT ",size='x-large',color='blue')
 st.pyplot(fig)
+
 
 st.markdown("<h2 style='color: red;'>Closing Price VS Time Chart with 100MA & MA200</h2>", unsafe_allow_html=True)
-ma100 =bp.Close.rolling(100).mean()
-ma200 =bp.Close.rolling(200).mean()
-fig = plt.figure(figsize = (12,6))
-plt.plot(ma100,'r')
-plt.plot(ma200,'g')
-plt.plot(bp.Close,'b')
+fig=plt.figure(figsize=(14,5))
+sns.set_style("ticks")
+sns.lineplot(data=bp2,x="Date",y=bp.Close.rolling(100).mean(),color='green')
+sns.lineplot(data=bp2,x="Date",y=bp.Close.rolling(200).mean(),color='blue')
+sns.lineplot(data=bp2,x="Date",y='Close',color='firebrick')
+sns.despine()
+plt.title("The Stock Price of BERGEPAINT ",size='x-large',color='blue')
 st.pyplot(fig)
+
+
 
 
 
@@ -165,14 +182,14 @@ def bp_stockprice(n_future):
     
 def plo():
  st.markdown("<h2 style='color: red;'>predictions plot</h2>", unsafe_allow_html=True)
- fig2 = plt.figure(figsize=(12,6))
- plt.plot(bp[['Close']], 'r', label = "Original Price")
- plt.plot(pred_future, label = "Predicted Price")
- plt.xlabel('Time')
- plt.ylabel('Price')
- plt.legend()
- plt.show()
- st.pyplot(fig2)
+ fig3=plt.figure(figsize=(14,5))
+ sns.set_style("ticks")
+ sns.lineplot(data=bp2,x="Date",y='Close',color='firebrick',label="Original Price")
+ sns.lineplot(data=pred_future,color='Green',label='Predicted Price')
+ sns.despine()
+ plt.title("The Stock Price of BERGEPAINT ",size='x-large',color='blue')
+ st.pyplot(fig3)
+ 
 
 
 def main():
